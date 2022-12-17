@@ -1,6 +1,7 @@
 import { CancelNotification } from '@application/use-cases/cancel-notification';
 import { CountActivesNotification } from '@application/use-cases/count-actives-notification';
 import { CountRecipientNotification } from '@application/use-cases/count-recipient-notification';
+import { GetActivesNotification } from '@application/use-cases/get-actives-notification';
 import { GetRecipientNotification } from '@application/use-cases/get-recipient-notifications';
 import { ReadNotification } from '@application/use-cases/read-notification';
 import { UnreadNotification } from '@application/use-cases/unread-notification';
@@ -20,6 +21,7 @@ export class NotificationsController {
     private countRecipientNotifications: CountRecipientNotification,
     private getRecipientNotifications: GetRecipientNotification,
     private countActivesNotifications: CountActivesNotification,
+    private getActivesRecipientNotifications: GetActivesNotification,
   ) {}
 
   @Patch(':id/cancel')
@@ -54,7 +56,7 @@ export class NotificationsController {
     };
   }
 
-  @Get('actives/from/:recipientId')
+  @Get('count/actives/from/:recipientId')
   async countActivesFromRecipient(@Param('recipientId') recipientId: string) {
     const { count } = await this.countActivesNotifications.execute({
       recipientId,
@@ -70,6 +72,18 @@ export class NotificationsController {
     const { notifications } = await this.getRecipientNotifications.execute({
       recipientId,
     });
+
+    return {
+      notifications: notifications.map(NotificationViewModel.toHttp),
+    };
+  }
+
+  @Get('actives/from/:recipientId')
+  async getActivesFromRecipient(@Param('recipientId') recipientId: string) {
+    const { notifications } =
+      await this.getActivesRecipientNotifications.execute({
+        recipientId,
+      });
 
     return {
       notifications: notifications.map(NotificationViewModel.toHttp),
